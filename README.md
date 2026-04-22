@@ -54,11 +54,6 @@ hpc-unit3/
 exec(open('setup_colab.py').read())
 ```
 
-### Local install
-```bash
-# Install OpenMPI (Ubuntu/Debian)
-sudo apt-get install libopenmpi-dev openmpi-bin
-
 # Install Python dependencies
 pip install -r requirements.txt
 ```
@@ -110,4 +105,8 @@ mpirun -n 4 python exercise_4/mpi_kmeans.py
 | RAM | (document here after running) |
 
 ## Authors
-- [Tu nombre aquí]
+-Acosta Castellanos Bianca 
+-Canche Chuc Angel Rivaldo
+-Ku Russel
+-Sanchez Novelo Damian
+-Velasco Jonathan
