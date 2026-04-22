@@ -1,167 +1,99 @@
 # HPC Unit 3 — Final Assignment
 
-## What is this project?
+## Objetivo del Proyecto
 
-This repository contains the final assignment for the High Performance Computing (HPC) Unit 3 course. The goal is to implement and compare **serial vs parallel** solutions for four classic scientific computing problems, and to analyze when parallelism actually helps — and when it doesn't.
+Este repositorio contiene la tarea final para el curso de High Performance Computing (HPC) Unidad 3. El objetivo es implementar y comparar soluciones **seriales vs paralelas** para cuatro problemas distintos de cómputo científico, ciencia de datos e inteligencia artificial, utilizando `multiprocessing` y `mpi4py` en Python. 
 
-All experiments were run on **Google Colab** using Python `multiprocessing` and `mpi4py` (MPI).
+El enfoque principal es demostrar el impacto de la paralelización midiendo tiempos de ejecución, calculando el *speedup* y la eficiencia, y analizando los cuellos de botella (como el *overhead* de creación de procesos o el costo de comunicación).
 
----
+## Estructura del Repositorio
 
-## Exercise 1 — Parallel Matrix Multiplication
+El proyecto está organizado en las siguientes carpetas y archivos:
 
-Matrix multiplication (`C = A × B`) is one of the most fundamental operations in scientific computing and machine learning. In this exercise we asked: *can we make it faster by splitting the work across multiple CPU cores?*
-
-We implemented five strategies:
-
-- **Serial baseline**: standard numpy multiplication (`A @ B`) as the reference.
-- **Row partition**: split matrix A by rows, each worker multiplies its chunk by B.
-- **Column partition**: split matrix B by columns, each worker multiplies A by its chunk.
-- **Block partition**: divide both matrices into 2D blocks and assign each block to a worker.
-- **MPI version**: distribute rows of A across MPI processes using `scatter/gather` collective communication.
-- **Strassen**: recursive algorithm that reduces multiplications from 8 to 7 per recursion level, lowering theoretical complexity from O(n³) to ~O(n^2.81).
-
-**What we found:** For these matrix sizes, numpy's built-in `@` operator is already internally parallelized with BLAS/LAPACK, so Python-level multiprocessing actually makes things *slower* due to process spawning overhead. MPI achieved a real speedup of ~2x at n=1024 with 2 processes. Strassen was only faster than numpy for very small matrices (n=128).
-
----
-
-## Exercise 2 — Parallel Cell Image Processing
-
-Modern biology microscopy pipelines need to analyze hundreds or thousands of images automatically. In this exercise we built an automated pipeline to detect and measure cells in microscopy images.
-
-**Dataset:** DIC-C2DH-HeLa from the Cell Tracking Challenge — 84 grayscale images (512×512 px) of HeLa cancer cells filmed under a microscope.
-
-The pipeline does the following for each image:
-1. **Smooth** the image with a Gaussian filter to reduce noise.
-2. **Segment** cells from background using Otsu's threshold.
-3. **Separate** cells that are touching using the Watershed algorithm.
-4. **Measure** each detected cell: area, bounding box, major axis length, minor axis length.
-
-We then parallelized this pipeline using Python `multiprocessing`, distributing images across workers so multiple images are processed simultaneously.
-
-**What we found:** The parallel version with 2 workers achieved a speedup of 1.24x over serial (15.15s → 12.21s for 84 images). On average, each image contained ~52 cells. Interestingly, frames t058–t063 had very few but enormous cells — likely cells in the middle of mitosis (cell division).
-
----
-
-## Exercise 3 — Forest Fire Cellular Automaton with NASA FIRMS Data
-
-A cellular automaton is a grid-based simulation where each cell changes state based on its neighbors. Forest fire propagation is a natural fit: fire spreads from burning cells to neighboring vegetation.
-
-In this exercise we combined a cellular automaton with **real satellite fire data** from NASA FIRMS (Fire Information for Resource Management System).
-
-**Data:** 5,632 fire hotspot detections over the Yucatan Peninsula (April 2024) from the VIIRS S-NPP satellite sensor. Each detection includes GPS coordinates and Fire Radiative Power (FRP), a measure of fire intensity.
-
-The simulation works as follows:
-- Build a 200×200 grid covering the Yucatan Peninsula (~500m per cell).
-- Map NASA FIRMS detections onto the grid as initial ignition points (state = *burning*).
-- At each time step, burning cells can ignite susceptible neighbors based on a probability that depends on the number of burning neighbors and local FRP intensity.
-- Burning cells transition to *burned* after 3 steps (fuel exhausted).
-
-We ran 20 simulation steps and parallelized using MPI with domain decomposition: each process handles a horizontal strip of the grid and exchanges boundary rows (halos) with neighbors at each step.
-
-**What we found:** The fire spread rapidly, consuming most of the central Yucatan region by step 20. MPI with 4 processes achieved 1.34x speedup over serial. For small grids, halo exchange communication limits scalability. An important note: NASA FIRMS hotspots are thermal anomaly detections from satellite — they are not the same as the actual fire perimeter.
-
----
-
-## Exercise 4 — Parallel K-Means Clustering
-
-*In progress.*
-
----
-
-## Repository Structure
-
-```
+```text
 hpc-unit3/
-├── README.md
-├── requirements.txt
-├── setup_colab.py          ← run this first on Google Colab
+├── README.md               ← Este archivo de documentación
+├── requirements.txt        ← Dependencias de Python necesarias
+├── setup_colab.py          ← Script de configuración si se usa Google Colab
+├── download_data.py        ← Script para descargar imágenes HeLa (Ej. 2)
+├── download_firms.py       ← Script para descargar datos de la NASA (Ej. 3)
 │
-├── exercise_1/             ← Matrix Multiplication 
+├── exercise_1/             ← Multiplicación de Matrices
 │   ├── serial_matmul.py
 │   ├── parallel_row.py
 │   ├── parallel_col.py
 │   ├── parallel_block.py
 │   ├── mpi_matmul.py
-│   └── strassen.py
+│   ├── strassen.py
+│   └── sparse_matmul.py
 │
-├── exercise_2/             ← Cell Image Processing 
+├── exercise_2/             ← Procesamiento de Imágenes Celulares
 │   ├── serial_pipeline.py
 │   ├── parallel_pipeline.py
-│   └── results/
-│       └── exercise_2_results.csv
+│   ├── cellpose_pipeline.py
+│   └── results/            ← Contiene resultados CSV e imágenes
 │
-├── exercise_3/             ← Forest Fire Automaton 
+├── exercise_3/             ← Autómata Celular (Incendios Forestales)
 │   ├── serial_automaton.py
 │   ├── mpi_automaton.py
-│   ├── firms_data.csv
-│   └── frames/
+│   ├── firms_data.csv      ← (Se genera tras ejecutar download_firms.py)
+│   └── frames/             ← Gifs y estados finales
 │
-├── exercise_4/             ← Parallel K-Means 
+├── exercise_4/             ← Clustering K-Means
 │   ├── serial_kmeans.py
 │   └── mpi_kmeans.py
 │
-└── docs/
-    ├── report.pdf
-    └── assets/
+└── docs/                   ← Documentación
+    ├── report_base.md      ← Borrador/Base del reporte
+    └── report.pdf          ← Reporte final (PENDIENTE DE GENERAR)
 ```
 
-## How to run
+## Requisitos de Software
 
-### Setup (Google Colab)
-```python
-# Cell 1 — install system MPI
-!apt-get install -y -q libopenmpi-dev openmpi-bin
+Para asegurar la reproducibilidad de los experimentos, instala las dependencias utilizando el archivo `requirements.txt`. 
 
-# Cell 2 — install Python dependencies
-!pip install -q numpy scipy matplotlib pandas seaborn mpi4py \
-    cellpose scikit-image opencv-python-headless Pillow tqdm \
-    requests geopandas shapely pyproj imageio scikit-learn ucimlrepo psutil
-```
+1. **Instalación local (Windows/Linux/Mac):**
+   Asegúrate de tener instalado Python 3.8+ y una implementación de MPI en tu sistema (ej. OpenMPI en Linux o MS-MPI en Windows).
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### Exercise 1
+2. **Instalación en Google Colab:**
+   Usa el archivo `setup_colab.py` para configurar el entorno automáticamente.
+
+---
+
+## Instrucciones de Ejecución
+
+### 1. Preparación de Datos (Solo una vez)
+Algunos ejercicios requieren descargar datasets pesados o datos externos:
 ```bash
-python exercise_1/serial_matmul.py
-python exercise_1/parallel_row.py
-python exercise_1/parallel_col.py
-python exercise_1/parallel_block.py
-mpirun --allow-run-as-root --oversubscribe -n 4 python exercise_1/mpi_matmul.py
-python exercise_1/strassen.py
+python download_data.py   # Descarga imágenes HeLa para Ejercicio 2
+python download_firms.py  # Descarga datos NASA para Ejercicio 3
 ```
 
-### Exercise 2
-```bash
-python exercise_2/serial_pipeline.py
-python exercise_2/parallel_pipeline.py
-```
+### 2. Cómo correr los Ejercicios
+Dependiendo de tu sistema operativo, los comandos de MPI pueden variar:
 
-### Exercise 3
-```bash
-python exercise_3/serial_automaton.py
-mpirun --allow-run-as-root --oversubscribe -n 4 python exercise_3/mpi_automaton.py
-```
+#### En Linux / Google Colab (OpenMPI)
+*   **Scripts Seriales/Multiprocessing:** `python exercise_X/script.py`
+*   **Scripts MPI:** `mpirun --allow-run-as-root -n 4 python exercise_X/mpi_script.py`
 
-### Exercise 4
-```bash
-python exercise_4/serial_kmeans.py
-mpirun --allow-run-as-root --oversubscribe -n 4 python exercise_4/mpi_kmeans.py
-```
+#### En Windows (MS-MPI)
+*   **Scripts Seriales/Multiprocessing:** `python exercise_X/script.py`
+*   **Scripts MPI:** `mpiexec -n 4 python exercise_X/mpi_script.py`
 
-## Execution Environment
+---
 
-| Item     | Value                                               |
-|----------|-----------------------------------------------------|
-| Platform | Google Colab                                        |
-| Python   | 3.12                                                |
-| MPI      | OpenMPI 4.x (2 physical CPUs, oversubscribed to 4)  |
-| numpy    | 2.0.2                                               |
-| scipy    | 1.16.3                                              |
-| mpi4py   | 4.1.1                                               |
-| sklearn  | 1.6.1                                               |
+## Autores y Tareas Pendientes (Equipo de 5)
 
-## Authors
--Acosta Castellanos Bianca 
--Canche Chuc Angel Rivaldo
--Ku Russel
--Sanchez Novelo Damian
--Velasco Jonathan
+Este repositorio fue construido colaborativamente. A continuación se asignan las tareas finales para la entrega:
+
+*   **Rivaldo:** Coordinación del repositorio, extracción de scripts desde el notebook original y validación técnica del código.
+*   **Persona 1 (Bianca):** Exportar `docs/report_base.md` a PDF (`docs/report.pdf`) asegurándose de incluir las gráficas generadas (`final_state.png`, etc.) y revisar la redacción de los Ejercicios 1 y 2.
+*   **Persona 2 (Damian):** Completar el análisis y discusión en el reporte sobre los resultados de MPI en el Ejercicio 3 (Autómata Celular) y Ejercicio 4 (K-Means).
+*   **Persona 3 (Russel):** Revisar que todas las "Evidencias de completitud" (capturas, tablas de *speedup*) estén insertadas correctamente en el PDF final según las instrucciones.
+*   **Persona 4 (Jonathan):** Subir la rama final al repositorio y gestionar la entrega oficial asegurándose de que el PDF esté en la carpeta `docs/`.
+
+---
+*Nota: Para que las comparaciones de *speedup* en el Ejercicio 1 sean justas, los scripts desactivan el multithreading interno de NumPy (BLAS) asignando `OMP_NUM_THREADS=1`.*
