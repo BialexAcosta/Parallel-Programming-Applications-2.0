@@ -1,7 +1,4 @@
-# HPC Unit 3 - Final Assignment Report (Base)
-
-This Markdown file is the editable source for the final report.
-Before submission, export this file to `docs/report.pdf`.
+# HPC Unit 3 - Final Assignment Report 
 
 ## Execution Environment
 
@@ -112,9 +109,6 @@ Before submission, export this file to `docs/report.pdf`.
 - Analyze collective communication costs.
 - Discuss influence of dataset size and number of clusters on scalability.
 
-## Final Validation Checklist
-
-- All requested tasks have explicit evidence.
 - All figures and tables are readable and correctly labeled.
 - Serial and parallel comparisons are easy to verify.
 - Command lines and execution settings are documented.
