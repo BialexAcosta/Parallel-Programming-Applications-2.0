@@ -1,6 +1,6 @@
 # High Performance Computing - Unit 3 Final Assignment
 
-#Team 
+Team:
 Rivaldo Canche
 Bianca Acosta
 Russel Ku
