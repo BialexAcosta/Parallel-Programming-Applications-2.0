@@ -1,0 +1,105 @@
+HPC UNIT 3 - LIVE DEMO EXECUTION GUIDE
+
+Repository:
+C:\Users\russe\Documents\github_repo\Parallel-Programming-Applications-2.0
+
+Purpose:
+This guide provides a formal, reproducible command sequence to run all assignment components (serial, multiprocessing, and MPI) during a live demonstration.
+
+--------------------------------------------------
+1) Open terminal and move to repository root
+--------------------------------------------------
+cd C:\Users\russe\Documents\github_repo\Parallel-Programming-Applications-2.0
+
+--------------------------------------------------
+2) Activate virtual environment
+--------------------------------------------------
+.\.venv\Scripts\Activate.ps1
+
+If activation is blocked by policy:
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+
+--------------------------------------------------
+3) Install dependencies
+--------------------------------------------------
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+
+--------------------------------------------------
+4) Prepare datasets (run once)
+--------------------------------------------------
+python download_data.py
+python download_firms.py
+
+--------------------------------------------------
+5) Exercise 1 - Matrix Multiplication
+--------------------------------------------------
+python exercise_1/serial_matmul.py
+python exercise_1/parallel_row.py
+python exercise_1/parallel_col.py
+python exercise_1/parallel_block.py
+python exercise_1/strassen.py
+python exercise_1/sparse_matmul.py
+"C:\Program Files\Microsoft MPI\Bin\mpiexec.exe" -n 4 python exercise_1/mpi_matmul.py
+
+--------------------------------------------------
+6) Exercise 2 - Cell Image Processing
+--------------------------------------------------
+python exercise_2/serial_pipeline.py
+python exercise_2/parallel_pipeline.py
+python exercise_2/cellpose_pipeline.py
+
+Expected generated outputs:
+- exercise_2/results/exercise_2_results.csv
+- exercise_2/results/cellpose_results.csv
+- exercise_2/results/sample_segmentation.png
+
+Note:
+Cellpose may download a model file on first run and can take several minutes.
+
+--------------------------------------------------
+7) Exercise 3 - Forest Fire Cellular Automaton
+--------------------------------------------------
+python exercise_3/serial_automaton.py
+"C:\Program Files\Microsoft MPI\Bin\mpiexec.exe" -n 4 python exercise_3/mpi_automaton.py
+
+Expected generated output:
+- exercise_3/frames/final_state.png
+
+--------------------------------------------------
+8) Exercise 4 - K-Means Clustering
+--------------------------------------------------
+python exercise_4/serial_kmeans.py
+"C:\Program Files\Microsoft MPI\Bin\mpiexec.exe" -n 4 python exercise_4/mpi_kmeans.py
+
+--------------------------------------------------
+9) Optional: quick syntax validation for assignment scripts only
+--------------------------------------------------
+Get-ChildItem exercise_* -Recurse -Filter *.py | ForEach-Object { python -m py_compile $_.FullName }
+
+--------------------------------------------------
+10) Suggested live demo order (time-efficient)
+--------------------------------------------------
+1. Exercise 1 serial + one multiprocessing version + MPI version
+2. Exercise 3 serial + MPI (fast visual/metrics output)
+3. Exercise 4 serial + MPI (clear convergence/runtime comparison)
+4. Exercise 2 pipelines (Cellpose last due to runtime)
+
+--------------------------------------------------
+11) Troubleshooting quick checks
+--------------------------------------------------
+Check active Python:
+python -c "import sys; print(sys.executable)"
+
+Check mpi4py:
+python -c "import mpi4py; print(mpi4py.__version__)"
+
+Check MS-MPI executable:
+"C:\Program Files\Microsoft MPI\Bin\mpiexec.exe" -help
+
+PowerShell note:
+If you execute mpiexec with spaces directly, use call operator:
+& "C:\Program Files\Microsoft MPI\Bin\mpiexec.exe" -n 4 python exercise_1/mpi_matmul.py
+
+

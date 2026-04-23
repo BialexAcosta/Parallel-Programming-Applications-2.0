@@ -55,14 +55,14 @@ def run_benchmark(sizes=[128, 256, 512]):  # 1024 es muy lento en Strassen puro
         C_strassen = strassen(Ap, Bp)[:n, :n]
         t_strassen = time.perf_counter() - t0
 
-        assert np.allclose(C_serial, C_strassen, atol=1e-6), \"❌ Error\"
+        assert np.allclose(C_serial, C_strassen, atol=1e-6), "❌ Error"
         speedup = t_serial / t_strassen
-        print(f\"{n:>8} {t_serial:>10.4f} {t_strassen:>12.4f} {speedup:>9.2f}\")
+        print(f"{n:>8} {t_serial:>10.4f} {t_strassen:>12.4f} {speedup:>9.2f}")
 
-if __name__ == \"__main__\":
+if __name__ == "__main__":
     # Validación
     A = np.array([[1,2],[3,4]], dtype=float)
     B = np.array([[5,6],[7,8]], dtype=float)
-    assert np.allclose(strassen(A, B), A @ B), \"❌ Error en Strassen\"
-    print(\"✅ Validación correcta\\n\")
+    assert np.allclose(strassen(A, B), A @ B), "❌ Error en Strassen"
+    print("✅ Validación correcta\n")
     run_benchmark()

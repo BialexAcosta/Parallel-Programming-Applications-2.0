@@ -15,8 +15,8 @@ def process_image(img_path):
     thresh = filters.threshold_otsu(smoothed)
     binary = smoothed > thresh
 
-    binary = morphology.remove_small_objects(binary, min_size=200)
-    binary = morphology.remove_small_holes(binary, area_threshold=500)
+    binary = morphology.remove_small_objects(binary, max_size=199)
+    binary = morphology.remove_small_holes(binary, max_size=499)
 
     distance = distance_transform_edt(binary)
     coords = peak_local_max(distance, min_distance=15, labels=binary)
@@ -32,26 +32,26 @@ def process_image(img_path):
             continue
         cells.append({
             "area":       p.area,
-            "major_axis": round(p.major_axis_length, 2),
-            "minor_axis": round(p.minor_axis_length, 2),
+            "major_axis": round(p.axis_major_length, 2),
+            "minor_axis": round(p.axis_minor_length, 2),
             "bbox":       p.bbox,
             "centroid":   p.centroid,
         })
     return img, labels, cells
 
 if __name__ == "__main__":
-    # Probar con la primera imagen de la secuencia 01
+    # Test with the first image in sequence 01.
     img_path = "exercise_2/DIC-C2DH-HeLa/01/t001.tif"
     if os.path.exists(img_path):
         img, labels, cells = process_image(img_path)
-        print(f"Células detectadas: {len(cells)}")
+        print(f"Detected cells: {len(cells)}")
         
-        # Guardar visualización
+        # Save visualization.
         fig, axes = plt.subplots(1, 3, figsize=(15, 5))
         axes[0].imshow(img, cmap="gray")
         axes[0].set_title("Original")
         axes[1].imshow(labels, cmap="nipy_spectral")
-        axes[1].set_title(f"Segmentación ({len(cells)} células)")
+        axes[1].set_title(f"Segmentation ({len(cells)} cells)")
         axes[2].imshow(img, cmap="gray")
         for c in cells:
             r0, c0, r1, c1 = c["bbox"]
@@ -61,6 +61,6 @@ if __name__ == "__main__":
         axes[2].set_title("Bounding boxes")
         plt.tight_layout()
         plt.savefig("exercise_2/results/sample_segmentation.png")
-        print("Resultado guardado en exercise_2/results/sample_segmentation.png")
+        print("Result saved to exercise_2/results/sample_segmentation.png")
     else:
-        print(f"Imagen no encontrada: {img_path}")
+        print(f"Image not found: {img_path}")

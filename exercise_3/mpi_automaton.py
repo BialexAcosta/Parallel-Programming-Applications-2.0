@@ -120,7 +120,7 @@ def run_mpi_automaton():
         print(f"--- Ejercicio 3: Autómata Forestal MPI ---")
         print(f"Procesos: {size}, Pasos: {N_STEPS}")
         print(f"Tiempo: {t_par:.4f}s")
-        print(f"Estado final -> 🔥 Ardiendo: {burning}, ⬛ Quemado: {burned}, 🌿 Susceptible: {susceptible}")
+        print(f"Final state -> Burning: {burning}, Burned: {burned}, Susceptible: {susceptible}")
 
 if __name__ == "__main__":
     run_mpi_automaton()

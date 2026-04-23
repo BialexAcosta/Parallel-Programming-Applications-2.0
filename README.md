@@ -1,24 +1,27 @@
-# HPC Unit 3 — Final Assignment
+# High Performance Computing - Unit 3 Final Assignment
 
-## Objetivo del Proyecto
+## Assignment Objective
 
-Este repositorio contiene la tarea final para el curso de High Performance Computing (HPC) Unidad 3. El objetivo es implementar y comparar soluciones **seriales vs paralelas** para cuatro problemas distintos de cómputo científico, ciencia de datos e inteligencia artificial, utilizando `multiprocessing` y `mpi4py` en Python. 
+This repository contains four High Performance Computing exercises focused on scientific computing, data science, and AI workflows.
 
-El enfoque principal es demostrar el impacto de la paralelización midiendo tiempos de ejecución, calculando el *speedup* y la eficiencia, y analizando los cuellos de botella (como el *overhead* de creación de procesos o el costo de comunicación).
+Each exercise includes:
+- a serial baseline
+- at least one parallel implementation using `multiprocessing`, `mpi4py`, or both
+- performance-oriented execution with runtime comparison
 
-## Estructura del Repositorio
+The goal is to show, through reproducible experiments, when parallelization improves performance and when overheads limit speedup.
 
-El proyecto está organizado en las siguientes carpetas y archivos:
+## Repository Structure
 
 ```text
-hpc-unit3/
-├── README.md               ← Este archivo de documentación
-├── requirements.txt        ← Dependencias de Python necesarias
-├── setup_colab.py          ← Script de configuración si se usa Google Colab
-├── download_data.py        ← Script para descargar imágenes HeLa (Ej. 2)
-├── download_firms.py       ← Script para descargar datos de la NASA (Ej. 3)
+Parallel-Programming-Applications-2.0/
+├── README.md
+├── requirements.txt
+├── setup_colab.py
+├── download_data.py
+├── download_firms.py
 │
-├── exercise_1/             ← Multiplicación de Matrices
+├── exercise_1/
 │   ├── serial_matmul.py
 │   ├── parallel_row.py
 │   ├── parallel_col.py
@@ -27,73 +30,106 @@ hpc-unit3/
 │   ├── strassen.py
 │   └── sparse_matmul.py
 │
-├── exercise_2/             ← Procesamiento de Imágenes Celulares
+├── exercise_2/
 │   ├── serial_pipeline.py
 │   ├── parallel_pipeline.py
 │   ├── cellpose_pipeline.py
-│   └── results/            ← Contiene resultados CSV e imágenes
+│   ├── DIC-C2DH-HeLa/
+│   └── results/
 │
-├── exercise_3/             ← Autómata Celular (Incendios Forestales)
+├── exercise_3/
 │   ├── serial_automaton.py
 │   ├── mpi_automaton.py
-│   ├── firms_data.csv      ← (Se genera tras ejecutar download_firms.py)
-│   └── frames/             ← Gifs y estados finales
+│   ├── firms_data.csv
+│   └── frames/
 │
-├── exercise_4/             ← Clustering K-Means
+├── exercise_4/
 │   ├── serial_kmeans.py
 │   └── mpi_kmeans.py
 │
-└── docs/                   ← Documentación
-    ├── report_base.md      ← Borrador/Base del reporte
-    └── report.pdf          ← Reporte final (PENDIENTE DE GENERAR)
+└── docs/
+      └── report_base.md
 ```
 
-## Requisitos de Software
+## Software Requirements
 
-Para asegurar la reproducibilidad de los experimentos, instala las dependencias utilizando el archivo `requirements.txt`. 
+- Python 3.8+
+- MPI runtime for distributed scripts
+   - Linux/macOS: OpenMPI (`mpirun`)
+   - Windows: MS-MPI (`mpiexec`)
+- Python dependencies from `requirements.txt`
 
-1. **Instalación local (Windows/Linux/Mac):**
-   Asegúrate de tener instalado Python 3.8+ y una implementación de MPI en tu sistema (ej. OpenMPI en Linux o MS-MPI en Windows).
-   ```bash
-   pip install -r requirements.txt
-   ```
+Install dependencies:
 
-2. **Instalación en Google Colab:**
-   Usa el archivo `setup_colab.py` para configurar el entorno automáticamente.
-
----
-
-## Instrucciones de Ejecución
-
-### 1. Preparación de Datos (Solo una vez)
-Algunos ejercicios requieren descargar datasets pesados o datos externos:
 ```bash
-python download_data.py   # Descarga imágenes HeLa para Ejercicio 2
-python download_firms.py  # Descarga datos NASA para Ejercicio 3
+pip install -r requirements.txt
 ```
 
-### 2. Cómo correr los Ejercicios
-Dependiendo de tu sistema operativo, los comandos de MPI pueden variar:
+## Reproducibility Notes
 
-#### En Linux / Google Colab (OpenMPI)
-*   **Scripts Seriales/Multiprocessing:** `python exercise_X/script.py`
-*   **Scripts MPI:** `mpirun --allow-run-as-root -n 4 python exercise_X/mpi_script.py`
+- Exercise scripts are organized so serial and parallel versions are easy to compare.
+- Benchmark outputs include runtime and, where implemented, speedup and efficiency.
+- For fair CPU baseline comparison in Exercise 1, BLAS threading is constrained in matrix scripts.
+- Any missing runtime support in a local machine (for example MPI runtime) must be installed before running MPI exercises.
 
-#### En Windows (MS-MPI)
-*   **Scripts Seriales/Multiprocessing:** `python exercise_X/script.py`
-*   **Scripts MPI:** `mpiexec -n 4 python exercise_X/mpi_script.py`
+## Data Preparation
 
----
+Run once before the related exercises:
 
-## Autores y Tareas Pendientes (Equipo de 5)
+```bash
+python download_data.py
+python download_firms.py
+```
 
-Este repositorio fue construido colaborativamente. A continuación se asignan las tareas finales para la entrega:
+## How To Run Each Exercise
 
-*   **Rivaldo:** Coordinación del repositorio, extracción de scripts desde el notebook original y validación técnica del código.
-*   **Persona 1 (Bianca):** Exportar `docs/report_base.md` a PDF (`docs/report.pdf`) asegurándose de incluir las gráficas generadas (`final_state.png`, etc.) y revisar la redacción de los Ejercicios 1 y 2.
-*   **Persona 2 (Damian):** Completar el análisis y discusión en el reporte sobre los resultados de MPI en el Ejercicio 3 (Autómata Celular) y Ejercicio 4 (K-Means).
-*   **Persona 3 (Russel):** Revisar que todas las "Evidencias de completitud" (capturas, tablas de *speedup*) estén insertadas correctamente en el PDF final según las instrucciones.
-*   **Persona 4 (Jonathan):** Subir la rama final al repositorio y gestionar la entrega oficial asegurándose de que el PDF esté en la carpeta `docs/`.
+Use `python` for serial/multiprocessing scripts and `mpirun` or `mpiexec` for MPI scripts.
 
----
-*Nota: Para que las comparaciones de *speedup* en el Ejercicio 1 sean justas, los scripts desactivan el multithreading interno de NumPy (BLAS) asignando `OMP_NUM_THREADS=1`.*
+Exercise 1:
+
+```bash
+python exercise_1/serial_matmul.py
+python exercise_1/parallel_row.py
+python exercise_1/parallel_col.py
+python exercise_1/parallel_block.py
+python exercise_1/strassen.py
+python exercise_1/sparse_matmul.py
+mpiexec -n 4 python exercise_1/mpi_matmul.py
+```
+
+Exercise 2:
+
+```bash
+python exercise_2/serial_pipeline.py
+python exercise_2/parallel_pipeline.py
+python exercise_2/cellpose_pipeline.py
+```
+
+Exercise 3:
+
+```bash
+python exercise_3/serial_automaton.py
+mpiexec -n 4 python exercise_3/mpi_automaton.py
+```
+
+Exercise 4:
+
+```bash
+python exercise_4/serial_kmeans.py
+mpiexec -n 4 python exercise_4/mpi_kmeans.py
+```
+
+## Report Deliverable
+
+The assignment requires a final PDF report at `docs/report.pdf`.
+
+Current repository state keeps `docs/report_base.md` as the editable source report.
+Export `docs/report_base.md` to `docs/report.pdf` before final submission.
+
+## Submission Checklist
+
+- Root `README.md` with objectives, structure, requirements, and run commands
+- One folder per exercise with source code and support files
+- `docs/report.pdf` generated from `docs/report_base.md`
+- Figures, tables, logs, and outputs stored under exercise folders or docs assets
+- Reproducible environment through `requirements.txt`

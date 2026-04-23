@@ -6,74 +6,86 @@ from skimage import io, measure
 import matplotlib.pyplot as plt
 
 def run_cellpose_pipeline(data_dir="exercise_2/DIC-C2DH-HeLa/01"):
-    print("=== Ejercicio 2: Segmentación con Cellpose ===")
+    print("=== Exercise 2: Segmentation with Cellpose ===")
     
     if not os.path.exists(data_dir):
-        print(f"Directorio de datos {data_dir} no encontrado.")
-        print("Asegúrese de ejecutar o tener los datos extraídos en esa ruta.")
+        print(f"Data directory {data_dir} not found.")
+        print("Please download/extract the dataset into that path before running this script.")
         return
         
     try:
         from cellpose import models
     except ImportError:
-        print("El módulo cellpose no está instalado. Instalándolo puede resolver esto (pip install cellpose).")
+        print("The cellpose module is not installed. Install it with: pip install cellpose")
         return
         
     all_paths = sorted([os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith(".tif")])
     
     if not all_paths:
-        print("No se encontraron imágenes .tif en el directorio.")
+        print("No .tif images were found in the directory.")
         return
 
-    print("Cargando modelo Cellpose (cyto2)...")
-    # Para la prueba no usaremos GPU por defecto a menos que esté disponible de forma transparente.
-    model = models.Cellpose(gpu=False, model_type='cyto2')
+    print("Loading Cellpose model (cyto2)...")
+    # Support older and newer Cellpose APIs.
+    if hasattr(models, "Cellpose"):
+        model = models.Cellpose(gpu=False, model_type='cyto2')
+        eval_kwargs = {"diameter": None, "channels": [0, 0]}
+    elif hasattr(models, "CellposeModel"):
+        model = models.CellposeModel(gpu=False, model_type='cyto2')
+        eval_kwargs = {"diameter": None, "channels": [0, 0]}
+    else:
+        print("Unsupported Cellpose API version: missing Cellpose and CellposeModel classes.")
+        return
     
     results = []
     t0 = time.perf_counter()
     
-    # Procesamos solo las primeras 5 imágenes como prueba para la validación
+    # Process only the first 5 images for quick validation.
     sample_paths = all_paths[:5]
-    print(f"Procesando {len(sample_paths)} imágenes de prueba...")
+    print(f"Processing {len(sample_paths)} validation images...")
     
     for img_path in sample_paths:
         img = io.imread(img_path)
-        # Evaluamos usando cellpose
-        masks, flows, styles, diams = model.eval(img, diameter=None, channels=[0,0])
+        # Evaluate using Cellpose.
+        eval_result = model.eval(img, **eval_kwargs)
+        if isinstance(eval_result, tuple):
+            masks = eval_result[0]
+        else:
+            masks = eval_result
         
         props = measure.regionprops(masks)
         cells = []
         for p in props:
-            if p.area < 50: # Filtro de ruido
+            if p.area < 50:  # Noise filter.
                 continue
             cells.append({
                 "area": p.area,
-                "major_axis": round(p.major_axis_length, 2),
-                "minor_axis": round(p.minor_axis_length, 2),
+                "major_axis": round(p.axis_major_length, 2),
+                "minor_axis": round(p.axis_minor_length, 2),
                 "bbox": p.bbox,
                 "centroid": p.centroid,
             })
             
         results.append({
-            "imagen": os.path.basename(img_path),
+            "image": os.path.basename(img_path),
             "n_cells": len(cells),
             "avg_major": round(np.mean([c["major_axis"] for c in cells]), 2) if cells else 0,
             "avg_minor": round(np.mean([c["minor_axis"] for c in cells]), 2) if cells else 0,
             "avg_area": round(np.mean([c["area"] for c in cells]), 2) if cells else 0
         })
-        print(f"Procesada {os.path.basename(img_path)}: {len(cells)} células.")
+        print(f"Processed {os.path.basename(img_path)}: {len(cells)} cells.")
         
     t_elapsed = time.perf_counter() - t0
-    print(f"Tiempo total (Cellpose serial - 5 imgs): {t_elapsed:.2f} s")
+    print(f"Total time (Cellpose serial - 5 images): {t_elapsed:.2f} s")
     
     df = pd.DataFrame(results)
-    print("\nResultados con Cellpose:")
+    print("\nCellpose results:")
     print(df.to_string(index=False))
     
-    # Guardar resultados
+    # Save results.
     os.makedirs("exercise_2/results", exist_ok=True)
     df.to_csv("exercise_2/results/cellpose_results.csv", index=False)
-    print("\nGuardado en exercise_2/results/cellpose_results.csv")
+    print("\nSaved to exercise_2/results/cellpose_results.csv")
 
 if __name__ == "__main__":
     run_cellpose_pipeline()
