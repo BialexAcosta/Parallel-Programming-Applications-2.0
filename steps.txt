@@ -1,0 +1,7 @@
+python3 main.py
+
+python3 main.py --run-mpi
+
+python3 main.py --include-colab
+
+python3 main.py --dry-run
