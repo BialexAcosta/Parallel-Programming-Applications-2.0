@@ -118,18 +118,3 @@ Exercise 4:
 python exercise_4/serial_kmeans.py
 mpiexec -n 4 python exercise_4/mpi_kmeans.py
 ```
-
-## Report Deliverable
-
-The assignment requires a final PDF report at `docs/report.pdf`.
-
-Current repository state keeps `docs/report_base.md` as the editable source report.
-Export `docs/report_base.md` to `docs/report.pdf` before final submission.
-
-## Submission Checklist
-
-- Root `README.md` with objectives, structure, requirements, and run commands
-- One folder per exercise with source code and support files
-- `docs/report.pdf` generated from `docs/report_base.md`
-- Figures, tables, logs, and outputs stored under exercise folders or docs assets
-- Reproducible environment through `requirements.txt`
