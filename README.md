@@ -1,5 +1,10 @@
 # High Performance Computing - Unit 3 Final Assignment
-
+##Team 
+Rivaldo Canche
+Bianca Acosta
+Russel Ku
+Damian Novelo
+Jonathan Velasco 
 ## Assignment Objective
 
 This repository contains four High Performance Computing exercises focused on scientific computing, data science, and AI workflows.
